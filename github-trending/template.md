@@ -1,4 +1,4 @@
-## [{name}](url)
+## [{name}]({url})
 
 {description} 
 
