@@ -13,19 +13,19 @@ namespace github_trending
 
         static void Main(string[] args)
         {
-            var pushurl = Environment.GetEnvironmentVariable("pushurl");
-            var httpClient = new HttpClient();
-            var json = httpClient.GetStringAsync(github_trending_api).Result;
-            var repos = JsonConvert.DeserializeObject<Repository[]>(json);
+            var pushurl   = Environment.GetEnvironmentVariable("pushurl");
+            var formatter = Environment.GetEnvironmentVariable("template");
 
-            var formatter = File.ReadAllText("template.md");
+            var httpClient = new HttpClient();
+            var json       = httpClient.GetStringAsync(github_trending_api).Result;
+            var repos      = JsonConvert.DeserializeObject<Repository[]>(json);
 
             var sb = new StringBuilder($"Github Trending{Environment.NewLine}");
             foreach (var repo in repos)
             {
                 sb.AppendLine(repo.Format(formatter));
             }
-            
+
             var msg = new
             {
                 msgtype = "markdown",
@@ -36,12 +36,12 @@ namespace github_trending
             };
 
             var msgStr = JsonConvert.SerializeObject(msg);
-            
+
             Console.WriteLine(msgStr);
 
-            var httpResponseMessage = httpClient.PostAsync(
-                pushurl,
-                new StringContent(msgStr, Encoding.UTF8, "application/json")).Result;
+            var httpResponseMessage = httpClient.PostAsync(pushurl, new StringContent(
+                                                     msgStr, Encoding.UTF8, "application/json"))
+                                                .Result;
 
             var result = httpResponseMessage.Content.ReadAsStringAsync().Result;
 
