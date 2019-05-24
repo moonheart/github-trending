@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,10 +16,13 @@ namespace github_trending
         {
             var pushurl   = Environment.GetEnvironmentVariable("pushurl");
             var formatter = Environment.GetEnvironmentVariable("template");
+            var size      = int.TryParse(Environment.GetEnvironmentVariable("size"), out var x) ? x : 0;
 
             var httpClient = new HttpClient();
             var json       = httpClient.GetStringAsync(github_trending_api).Result;
             var repos      = JsonConvert.DeserializeObject<Repository[]>(json);
+
+            if (size > 0) repos = repos.Take(size).ToArray();
 
             var sb = new StringBuilder($"Github Trending{Environment.NewLine}");
             foreach (var repo in repos)
